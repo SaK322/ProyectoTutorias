@@ -9,12 +9,27 @@ use Illuminate\Support\Facades\Hash;
 
 class TutorController extends Controller
 {
-    public function index()
+    // 1. AGREGAMOS "Request $request" AQUÍ
+    public function index(Request $request) 
     {
-        $tutores = Tutor::with('user')->get();
+        // 2. CAPTURAMOS LO QUE EL USUARIO ESCRIBE EN EL BUSCADOR
+        $search = $request->input('search');
+
+        // 3. CONSULTA A LA BASE DE DATOS
+        $tutores = Tutor::with('user')
+            ->when($search, function ($query, $search) {
+                return $query->whereHas('user', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                })->orWhere('especialidad', 'like', "%{$search}%");
+            })
+            ->paginate(10); // 4. PAGINACIÓN DE 10 EN 10
+
         return view('tutores.index', compact('tutores'));
     }
 
+    // ... (el resto de tus funciones create, store, edit, update, destroy se quedan EXACTAMENTE igual que las tenías)
+    
     public function create()
     {
         return view('tutores.create');

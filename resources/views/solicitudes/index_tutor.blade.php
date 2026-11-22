@@ -1,83 +1,83 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Solicitudes Recibidas') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app-modern')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    @if(session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead>
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estudiante</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Materia</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha y Hora</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($solicitudes as $solicitud)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $solicitud->student->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $solicitud->materia }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $solicitud->fecha }} a las {{ $solicitud->hora }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                            @if($solicitud->estado == 'pendiente') bg-yellow-100 text-yellow-800 
-                                            @elseif($solicitud->estado == 'aceptada') bg-green-100 text-green-800 
-                                            @elseif($solicitud->estado == 'rechazada') bg-red-100 text-red-800 
-                                            @else bg-blue-100 text-blue-800 @endif">
-                                            {{ ucfirst($solicitud->estado) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        @if($solicitud->estado === 'pendiente')
-                                            <form action="{{ route('solicitudes.update', $solicitud) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="estado" value="aceptada">
-                                                <button type="submit" class="text-green-600 hover:text-green-900 mr-3">Aceptar</button>
-                                            </form>
-                                            <form action="{{ route('solicitudes.update', $solicitud) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="estado" value="rechazada">
-                                                <input type="hidden" name="motivo_rechazo" value="No disponible en ese horario">
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Rechazar</button>
-                                            </form>
-                                        @elseif($solicitud->estado === 'aceptada')
-                                            <form action="{{ route('solicitudes.update', $solicitud) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="estado" value="completada">
-                                                <button type="submit" class="text-blue-600 hover:text-blue-900">Marcar Completada</button>
-                                            </form>
-                                        @else
-                                            <span class="text-gray-400">Sin acciones</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">No tienes solicitudes recibidas.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-        </div>
+@section('content')
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h2 class="text-2xl font-bold text-gray-800">Solicitudes Recibidas</h2>
+        <p class="text-gray-500 text-sm mt-1">Gestiona las tutorías que te han solicitado.</p>
     </div>
-</x-app-layout>
+</div>
+
+@if(session('success'))
+    <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+        {{ session('success') }}
+    </div>
+@endif
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-left border-collapse">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Estudiante</th>
+                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Materia</th>
+                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Fecha y Hora</th>
+                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                <th class="px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Acciones</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            @forelse($solicitudes as $solicitud)
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ $solicitud->student->name }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ $solicitud->materia }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ \Carbon\Carbon::parse($solicitud->fecha)->format('d M, Y') }} - {{ $solicitud->hora }}</td>
+                    <td class="px-6 py-4">
+                        @if($solicitud->estado == 'pendiente')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pendiente</span>
+                        @elseif($solicitud->estado == 'aceptada')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Aceptada</span>
+                        @elseif($solicitud->estado == 'rechazada')
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">Rechazada</span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        @if($solicitud->estado === 'pendiente')
+                            <!-- Formulario con campo de mensaje -->
+                            <form action="{{ route('solicitudes.update', $solicitud) }}" method="POST" class="flex flex-col gap-2 mt-2">
+                                @csrf
+                                @method('PUT')
+                                
+                                <input type="text" name="mensaje_tutor" placeholder="Escribe un mensaje..." class="text-xs border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 w-full" required>
+                                
+                                <div class="flex gap-2">
+                                    <button type="submit" name="estado" value="aceptada" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Aceptar</button>
+                                    <button type="submit" name="estado" value="rechazada" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">Rechazar</button>
+                                </div>
+                            </form>
+                        @elseif($solicitud->estado === 'aceptada')
+                            <form action="{{ route('solicitudes.update', $solicitud) }}" method="POST" class="inline">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="estado" value="completada">
+                                <input type="hidden" name="mensaje_tutor" value="Tutoría completada con éxito.">
+                                <button type="submit" class="text-blue-600 hover:text-blue-900 text-xs">Marcar Completada</button>
+                            </form>
+                        @else
+                            <span class="text-gray-400 text-xs">Procesada</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No tienes solicitudes recibidas.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginación -->
+<div class="mt-6">
+    {{ $solicitudes->links() }}
+</div>
+@endsection

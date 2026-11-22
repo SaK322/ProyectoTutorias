@@ -9,7 +9,7 @@ class TutoringRequest extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'tutor_id', 'materia', 'fecha', 'hora', 'estado', 'motivo_rechazo'];
+   protected $fillable = ['student_id', 'tutor_id', 'materia', 'fecha', 'hora', 'estado', 'motivo_rechazo', 'mensaje_tutor'];
 
     public function student()
     {
